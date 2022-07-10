@@ -1,7 +1,9 @@
 """
+Batch Photo Scaler 
+by JL 2022
+
 this script scales all .jpg and .jpeg files at given path
 to the given (biger) dimension, and saves them in new folder
-with a name corresponding to that dimension
 """
 
 import os
@@ -52,14 +54,14 @@ def mk_photo_dir(path, dim):
 
 def locate_photos(path):
     """
-    returns a list of .jpg and jpeg 
+    returns a list of .jpg and jpeg
     files at given path, case insensitive
     """
-    photo_list =[]
+    photo_list = []
     list_dir = os.listdir(path)
     for guess in list_dir:
 
-        pat = re.compile("(?i)(jpe?g)$") 
+        pat = re.compile("(?i)(jpe?g)$")
         if re.search(pat, guess):
             photo_list.append(guess)
 
@@ -80,10 +82,14 @@ def scale_photo(photo: Image, max_dim):
 
 
 def main():
+    """
+    main func
+    """
     path = get_path()
     max_dim = get_dimension()
     photos = locate_photos(path)
 
+    # comfirm resizing
     menu = None
     while menu not in ["y", "Y", "n", "N"]:
         menu = input(f"\n{len(photos)} images found, do you want to resize them? (y/n) ")
@@ -92,10 +98,12 @@ def main():
         print("Abort mission!")
         return
 
+    # create a directory (if necessary)
     mk_photo_dir(path, max_dim)
 
-    for id, name in enumerate(photos):
-        print(f"\n{id+1}/{len(photos)} [{name}]")
+    # resize images
+    for num, name in enumerate(photos):
+        print(f"\n{num+1}/{len(photos)} [{name}]")
         img = Image.open(path + "/" + name)
         img = scale_photo(img, max_dim)
         img.save(path + "/" + str(max_dim) + "px/" + name)
