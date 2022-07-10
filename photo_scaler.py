@@ -40,9 +40,13 @@ def get_dimension():
 
 def mk_photo_dir(path, dim):
     """
-    creates a folder /[dimension]px in a foto folder
+    checks if destination folder exists
+    creates new if not
     """
-    os.mkdir(path + "/" + str(dim) + "px")
+    if os.path.isdir(path + "/" + str(dim) + "px"):
+        return
+    else:
+        os.mkdir(path + "/" + str(dim) + "px")
     return
 
 
@@ -70,6 +74,7 @@ def scale_photo(photo: Image, max_dim):
     factor = max_dim / max(w, h)
     new_h = int(h * factor)
     new_w = int(w * factor)
+    print(f"{h}x{w} -> {new_h}x{new_w}")
     photo = photo.resize((new_h, new_w))
     return photo
 
@@ -77,14 +82,26 @@ def scale_photo(photo: Image, max_dim):
 def main():
     path = get_path()
     max_dim = get_dimension()
-    mk_photo_dir(path, max_dim)
     photos = locate_photos(path)
-    for name in photos:
+
+    menu = None
+    while menu not in ["y", "Y", "n", "N"]:
+        menu = input(f"\n{len(photos)} images found, do you want to resize them? (y/n) ")
+
+    if menu in ["n", "N"]:
+        print("Abort mission!")
+        return
+
+    mk_photo_dir(path, max_dim)
+
+    for id, name in enumerate(photos):
+        print(f"\n{id+1}/{len(photos)} [{name}]")
         img = Image.open(path + "/" + name)
         img = scale_photo(img, max_dim)
         img.save(path + "/" + str(max_dim) + "px/" + name)
+        print()
 
-
+    print("Done!\n")
 
 
 if __name__ == "__main__":
