@@ -12,7 +12,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade Pillow
 ```
 
-### How to run Butch Photo Scaler
+### How to run Batch Photo Scaler
 To run Batch Photo Scaler from terminal cd to the folder and run:
 ```
 python3 photo_scaler.py
