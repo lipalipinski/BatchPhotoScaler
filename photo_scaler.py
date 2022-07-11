@@ -5,7 +5,7 @@ by JL 2022
 this script scales all .jpg and .jpeg files at given path
 to the given (biger) dimension, and saves them in new folder
 """
-
+import sys
 import os
 import re
 from PIL import Image
@@ -13,11 +13,20 @@ from PIL import Image
 
 def get_path():
     """
+    gets path from 1st arg passed from terminal or
     asks for a folder path
     checkec if it's valid
     returns a folder path (string)
+    returns False if folder path from command is incorrect
     """
-    print("Welcome to photo scaller!")
+    if len(sys.argv) > 1:
+        path = sys.argv[1]
+        if os.path.isdir(path):
+            return path
+        else:
+            print("Folder path incorrect!")
+            return False
+
     while True:
         path = input("Image folder path: ")
         if os.path.isdir(path):
@@ -28,9 +37,20 @@ def get_path():
 
 def get_dimension():
     """
+    gets dimension from 2nd arg passed from terminal or
     asks for a maximum dimension
     returns int
     """
+
+    # check if dim passed from terminal
+    if len(sys.argv) == 3:
+        try:
+            dim = int(sys.argv[2])
+            return dim
+        except ValueError:
+            print("Passed dimension incorrect...")
+
+    # if not or incorrect ask for dim
     while True:
         try:
             dim = int(input("Max dimension (px): "))
@@ -85,18 +105,27 @@ def main():
     """
     main func
     """
+    print("\nBatch Photo Scaler - welcome!\n")
     path = get_path()
-    max_dim = get_dimension()
+
+    # break if path provided incorrect
+    if path == False:
+        return
+
+    print("Working in: " + path)
     photos = locate_photos(path)
 
     # comfirm resizing
     menu = None
     while menu not in ["y", "Y", "n", "N"]:
-        menu = input(f"\n{len(photos)} images found, do you want to resize them? (y/n) ")
+        menu = input(f"{len(photos)} images found, do you want to resize them? (y/n) ")
 
     if menu in ["n", "N"]:
         print("Abort mission!")
         return
+
+    # ask for dimension
+    max_dim = get_dimension()
 
     # create a directory (if necessary)
     mk_photo_dir(path, max_dim)
