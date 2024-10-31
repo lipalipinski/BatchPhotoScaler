@@ -4,7 +4,7 @@ Batch Photo Scaler
 by JL 2022
 
 this script scales all .jpg and .jpeg files at given path
-to the given (biger) dimension, and saves them in new folder
+to the given dimension, and saves them in new folder
 """
 import argparse
 import logging
