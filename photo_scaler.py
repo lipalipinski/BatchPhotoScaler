@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument("max_dim", help="[int] maximum dimmention after scaling")
     parser.add_argument("-y", action="store_true", help="Do not ask for confirmation")
     parser.add_argument("-s", "--silent", action="store_true", help="silent mode")
-    parser.add_argument("-v", "--version", action="version", version=f"{prog_name} {prog_version}")
+    parser.add_argument("--version", action="version", version=f"{prog_name} {prog_version}")
     return parser.parse_args()
 
 def confirm_resize(photos):
