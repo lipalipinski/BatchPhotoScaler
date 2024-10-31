@@ -7,6 +7,8 @@ this script scales all .jpg and .jpeg files at given path
 to the given (biger) dimension, and saves them in new folder
 """
 import argparse
+import logging
+import sys
 from pathlib import Path
 from PIL import Image
 
@@ -15,6 +17,7 @@ def get_args():
     parser.add_argument("path", help="path to dir with photos")
     parser.add_argument("max_dim", help="[int] maximum dimmention after scaling")
     parser.add_argument("-y", action="store_true", help="Do not ask for confirmation")
+    parser.add_argument("-s", "--silent", action="store_true", help="silent mode")
     return parser.parse_args()
 
 def confirm_resize(photos):
@@ -23,7 +26,7 @@ def confirm_resize(photos):
         menu = input(f"{len(photos)} images found, do you want to resize them? (y/n) ")
 
     if menu in ["n", "N"]:
-        print("Abort mission!")
+        logging.info("Abort mission!")
         raise SystemExit(0)
     
 
@@ -40,7 +43,7 @@ def locate_photos(path: Path) -> list:
     """
     returns a list of .jpg and jpeg paths
     """
-    print("Working in: " + str(path))
+    logging.info("Working in: " + str(path))
     suffs = [".jpg", ".jpeg"]
     photo_list = []
     for f in path.iterdir():
@@ -58,27 +61,31 @@ def scale_photo(photo: Image, max_dim):
     factor = max_dim / max(w, h)
     new_h = int(h * factor)
     new_w = int(w * factor)
-    print(f"{h}x{w} -> {new_h}x{new_w}")
+    logging.info(f"{h}x{w} -> {new_h}x{new_w}")
     photo = photo.resize((new_h, new_w))
     return photo
 
 
 def main():
-    print("\nBatch Photo Scaler - welcome!\n")
-
     args = get_args()
+    logging.basicConfig(level=logging.INFO if not args.silent else logging.WARN, 
+                        handlers=[logging.StreamHandler(sys.stdout)], 
+                        format="%(message)s")
+
+    logging.info("\nBatch Photo Scaler - welcome!\n")
+
 
     # path
     path = Path(args.path)
     if not path.is_dir():
-        print(f"Invalid target dir: {str(path)}")
+        logging.warning(f"Invalid target dir: {str(path)}")
         raise SystemExit(1)
 
     # max_dim
     try: 
         max_dim = int(args.max_dim)
     except:
-        print("Invalid max dimmension")
+        logging.warning("Invalid max dimmension")
         raise SystemExit(1)
 
     photos = locate_photos(path)
@@ -90,13 +97,12 @@ def main():
 
     # resize images
     for i, f in enumerate(photos):
-        print(f"\n{i+1}/{len(photos)} [{f}]")
+        logging.info(f"\n{i+1}/{len(photos)} [{f}]")
         img = Image.open(f)
         img = scale_photo(img, max_dim)
         img.save(f"{dest_dir}/{f.name}")
-        print()
 
-    print("Done!\n")
+    logging.info("\nDone!\n")
 
 
 if __name__ == "__main__":
