@@ -6,84 +6,46 @@ by JL 2022
 this script scales all .jpg and .jpeg files at given path
 to the given (biger) dimension, and saves them in new folder
 """
-import sys
-import os
-import re
+import argparse
+from pathlib import Path
 from PIL import Image
 
-def get_path():
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", help="path to dir with photos")
+    parser.add_argument("max_dim", help="[int] maximum dimmention after scaling")
+    parser.add_argument("-y", action="store_true", help="Do not ask for confirmation")
+    return parser.parse_args()
+
+def confirm_resize(photos):
+    menu = None
+    while menu not in ["y", "Y", "n", "N"]:
+        menu = input(f"{len(photos)} images found, do you want to resize them? (y/n) ")
+
+    if menu in ["n", "N"]:
+        print("Abort mission!")
+        raise SystemExit(0)
+    
+
+def mk_photo_dir(path: Path, max_dim: str):
     """
-    gets path from 1st arg passed from terminal or
-    asks for a folder path
-    checkec if it's valid
-    returns a folder path (string)
-    returns False if folder path from command is incorrect
+    ensure dest directory and return its path
     """
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
-        if os.path.isdir(path):
-            return path
-        else:
-            print("Folder path incorrect!")
-            return False
-
-    while True:
-        path = input("Image folder path: ")
-        if os.path.isdir(path):
-            return path
-        else:
-            print("Folder path incorrect!")
+    dest_dir = Path.joinpath(path, f"{max_dim}px")
+    Path(dest_dir).mkdir(exist_ok=True)
+    return dest_dir
 
 
-def get_dimension():
+def locate_photos(path: Path) -> list:
     """
-    gets dimension from 2nd arg passed from terminal or
-    asks for a maximum dimension
-    returns int
+    returns a list of .jpg and jpeg paths
     """
-
-    # check if dim passed from terminal
-    if len(sys.argv) == 3:
-        try:
-            dim = int(sys.argv[2])
-            return dim
-        except ValueError:
-            print("Passed dimension incorrect...")
-
-    # if not or incorrect ask for dim
-    while True:
-        try:
-            dim = int(input("Max dimension (px): "))
-            break
-        except ValueError:
-            print("Incorrect value!")
-    return dim
-
-
-def mk_photo_dir(path, dim):
-    """
-    checks if destination folder exists
-    creates new if not
-    """
-    if os.path.isdir(path + "/" + str(dim) + "px"):
-        return
-    else:
-        os.mkdir(path + "/" + str(dim) + "px")
-    return
-
-
-def locate_photos(path):
-    """
-    returns a list of .jpg and jpeg
-    files at given path, case insensitive
-    """
+    print("Working in: " + str(path))
+    suffs = [".jpg", ".jpeg"]
     photo_list = []
-    list_dir = os.listdir(path)
-    for guess in list_dir:
-
-        pat = re.compile("(?i)(jpe?g)$")
-        if re.search(pat, guess):
-            photo_list.append(guess)
+    for f in path.iterdir():
+        if f.suffix in suffs:
+            photo_list.append(f)
 
     return photo_list
 
@@ -102,40 +64,36 @@ def scale_photo(photo: Image, max_dim):
 
 
 def main():
-    """
-    main func
-    """
     print("\nBatch Photo Scaler - welcome!\n")
-    path = get_path()
 
-    # break if path provided incorrect
-    if path == False:
-        return
+    args = get_args()
 
-    print("Working in: " + path)
+    # path
+    path = Path(args.path)
+    if not path.is_dir():
+        print(f"Invalid target dir: {str(path)}")
+        raise SystemExit(1)
+
+    # max_dim
+    try: 
+        max_dim = int(args.max_dim)
+    except:
+        print("Invalid max dimmension")
+        raise SystemExit(1)
+
     photos = locate_photos(path)
 
-    # comfirm resizing
-    menu = None
-    while menu not in ["y", "Y", "n", "N"]:
-        menu = input(f"{len(photos)} images found, do you want to resize them? (y/n) ")
+    if not args.y:
+        confirm_resize(photos)
 
-    if menu in ["n", "N"]:
-        print("Abort mission!")
-        return
-
-    # ask for dimension
-    max_dim = get_dimension()
-
-    # create a directory (if necessary)
-    mk_photo_dir(path, max_dim)
+    dest_dir = mk_photo_dir(path, max_dim)
 
     # resize images
-    for num, name in enumerate(photos):
-        print(f"\n{num+1}/{len(photos)} [{name}]")
-        img = Image.open(path + "/" + name)
+    for i, f in enumerate(photos):
+        print(f"\n{i+1}/{len(photos)} [{f}]")
+        img = Image.open(f)
         img = scale_photo(img, max_dim)
-        img.save(path + "/" + str(max_dim) + "px/" + name)
+        img.save(f"{dest_dir}/{f.name}")
         print()
 
     print("Done!\n")
