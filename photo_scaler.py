@@ -76,7 +76,7 @@ def main():
 
 
     # path
-    path = Path(args.path)
+    path = Path(args.path).absolute()
     if not path.is_dir():
         logging.warning(f"Invalid target dir: {str(path)}")
         raise SystemExit(1)
