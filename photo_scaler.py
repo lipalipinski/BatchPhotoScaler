@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image
 
 def get_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="img-scaler")
     parser.add_argument("path", help="path to dir with photos")
     parser.add_argument("max_dim", help="[int] maximum dimmention after scaling")
     parser.add_argument("-y", action="store_true", help="Do not ask for confirmation")
