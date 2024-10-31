@@ -12,12 +12,20 @@ import sys
 from pathlib import Path
 from PIL import Image
 
+prog_name = "img-scaler"
+prog_version = "1.0.0"
+
 def get_args():
-    parser = argparse.ArgumentParser(prog="img-scaler")
+    parser = argparse.ArgumentParser(
+        prog=prog_name,
+        description="Scale images in <path> to <max_dim> size",
+        epilog="JL 2024"
+        )
     parser.add_argument("path", help="path to dir with photos")
     parser.add_argument("max_dim", help="[int] maximum dimmention after scaling")
     parser.add_argument("-y", action="store_true", help="Do not ask for confirmation")
     parser.add_argument("-s", "--silent", action="store_true", help="silent mode")
+    parser.add_argument("-v", "--version", action="version", version=f"{prog_name} {prog_version}")
     return parser.parse_args()
 
 def confirm_resize(photos):
