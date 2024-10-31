@@ -100,7 +100,7 @@ def main():
         logging.info(f"\n{i+1}/{len(photos)} [{f}]")
         img = Image.open(f)
         img = scale_photo(img, max_dim)
-        img.save(f"{dest_dir}/{f.name}")
+        img.save(Path.joinpath(dest_dir, f.name))
 
     logging.info("\nDone!\n")
 
