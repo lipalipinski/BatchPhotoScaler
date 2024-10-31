@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3
 """
 Batch Photo Scaler 
 by JL 2022
@@ -9,7 +10,6 @@ import sys
 import os
 import re
 from PIL import Image
-
 
 def get_path():
     """
