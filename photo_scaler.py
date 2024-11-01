@@ -21,12 +21,17 @@ def get_args():
         description="Scale images in <path> to <max_dim> size",
         epilog="JL 2024"
         )
-    parser.add_argument("path", help="path to dir with photos")
-    parser.add_argument("max_dim", help="[int] maximum dimmention after scaling")
+    parser.add_argument("path", type=Path, help="path to dir with photos")
+    parser.add_argument("max_dim", type=int, help="[int] maximum dimmention after scaling")
     parser.add_argument("-y", action="store_true", help="Do not ask for confirmation")
     parser.add_argument("-s", "--silent", action="store_true", help="silent mode")
     parser.add_argument("--version", action="version", version=f"{prog_name} {prog_version}")
-    return parser.parse_args()
+
+    args = parser.parse_args()
+    if not args.path.is_dir():
+        parser.error("Invalid target dir")
+
+    return args
 
 def confirm_resize(photos):
     menu = None
@@ -84,17 +89,9 @@ def main():
 
 
     # path
-    path = Path(args.path).absolute()
-    if not path.is_dir():
-        logging.warning(f"Invalid target dir: {str(path)}")
-        raise SystemExit(1)
+    path = args.path.absolute()
 
-    # max_dim
-    try: 
-        max_dim = int(args.max_dim)
-    except:
-        logging.warning("Invalid max dimmension")
-        raise SystemExit(1)
+    max_dim = int(args.max_dim)
 
     photos = locate_photos(path)
 
