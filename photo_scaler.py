@@ -87,8 +87,6 @@ def main():
 
     logging.info("\nBatch Photo Scaler - welcome!\n")
 
-
-    # path
     path = args.path.absolute()
 
     max_dim = int(args.max_dim)
