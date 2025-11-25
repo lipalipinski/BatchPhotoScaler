@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from PIL import Image
 
-prog_name = "img-scaler"
+prog_name = "photo_scaler.py"
 prog_version = "1.0.0"
 
 def get_args():
@@ -57,7 +57,7 @@ def locate_photos(path: Path) -> list:
     returns a list of .jpg and jpeg paths
     """
     logging.info("Working in: " + str(path))
-    suffs = [".jpg", ".jpeg"]
+    suffs = [".jpg", ".jpeg", ".tif"]
     photo_list = []
     for f in path.iterdir():
         if f.suffix in suffs:
